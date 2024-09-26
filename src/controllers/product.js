@@ -12,10 +12,7 @@ export const getAllProduct = async (req, res) => {
 
 export const getOneProduct = async (req, res) => {
   try {
-    const data = await Product.findById(req.params.id).populate({
-      path: 'bids',
-      populate: { path: 'user', select: 'email' },
-    })
+    const data = await Product.findById(req.params.id)
 
     if (!data) {
       return res.status(404).json({ message: 'Not found' })
@@ -36,18 +33,7 @@ export const createProduct = async (req, res) => {
       return res.status(400).json({ message })
     }
 
-    const { bidTime, startAt } = req.body
-
-    let endAt = null
-
-    if (bidTime && startAt)
-      endAt = new Date(startAt).getTime() + bidTime * 60 * 1000
-
-    const dataCreate = req.body
-
-    if (endAt) dataCreate.endAt = new Date(endAt)
-
-    const data = await Product.create(dataCreate)
+    const data = await Product.create(req.body)
 
     res.status(200).json({ message: 'Product added successfully', data })
   } catch (error) {
@@ -64,18 +50,7 @@ export const updateProduct = async (req, res) => {
       return res.status(400).json({ message })
     }
 
-    const { bidTime, startAt } = req.body
-
-    let endAt = null
-
-    if (bidTime && startAt)
-      endAt = new Date(startAt).getTime() + bidTime * 60 * 1000
-
-    const dataUpdate = req.body
-
-    if (endAt) dataUpdate.endAt = new Date(endAt)
-
-    const data = await Product.findByIdAndUpdate(req.params.id, dataUpdate, {
+    const data = await Product.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     })
 
