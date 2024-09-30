@@ -12,7 +12,7 @@ const checkPermission = async (req, res, next) => {
 
     let decoded
     try {
-      decoded = jwt.verify(token, 'id')
+      decoded = jwt.verify(token, import.meta.env.VITE_JWT_SECRET)
     } catch (error) {
       if (error.name === 'TokenExpiredError') {
         return res.status(401).json({ error: 'Token expired, need to renew' })

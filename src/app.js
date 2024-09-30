@@ -1,8 +1,8 @@
+import cors from 'cors'
 import express from 'express'
 import morgan from 'morgan'
 import connectMongoDB from './config/db'
 import router from './routes'
-import cors from 'cors'
 
 const app = express()
 
@@ -12,7 +12,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(morgan('dev'))
 
-connectMongoDB('mongodb://localhost:27017/web209')
+connectMongoDB(import.meta.env.VITE_MONGO_URI)
 
 app.listen(3000)
 app.use('/', router)
