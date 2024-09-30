@@ -1,8 +1,8 @@
 import { Router } from 'express'
-import { deleteImage } from '../controllers/cloudinary'
+import { deleteImages } from '../controllers/cloudinary'
 
 const cloudinaryRouter = Router()
 
-cloudinaryRouter.delete('/:publicId', deleteImage)
+cloudinaryRouter.post('/delete', deleteImages)
 
 export default cloudinaryRouter

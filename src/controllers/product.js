@@ -66,9 +66,7 @@ export const updateProduct = async (req, res) => {
         .filter((image) => !newImages.includes(image))
         .map((image) => getPublicIdFromUrl(image))
 
-      toBeDeleted.forEach(async (publicId) => {
-        await cloudinary.uploader.destroy(publicId)
-      })
+      cloudinary.api.delete_resources(toBeDeleted)
     }
 
     const data = await Product.findByIdAndUpdate(req.params.id, req.body, {
@@ -88,10 +86,10 @@ export const deleteProduct = async (req, res) => {
     if (data?.thumbnail)
       cloudinary.uploader.destroy(getPublicIdFromUrl(data.thumbnail))
 
-    if (data?.images)
-      data.images.forEach(async (image) => {
-        await cloudinary.uploader.destroy(getPublicIdFromUrl(image))
-      })
+    if (data?.images) {
+      const toBeDeleted = data.images.map((image) => getPublicIdFromUrl(image))
+      cloudinary.api.delete_resources(toBeDeleted)
+    }
 
     res.status(200).json({ message: 'Product deleted successfully', data })
   } catch (error) {
