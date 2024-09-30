@@ -14,9 +14,12 @@ const schema = new Schema(
       type: String,
       required: true,
     },
-    image: {
+    thumbnail: {
       type: String,
       required: true,
+    },
+    images: {
+      type: [String],
     },
   },
   {
