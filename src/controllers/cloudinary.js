@@ -1,5 +1,5 @@
 import { v2 as cloudinary } from 'cloudinary'
-import { getPublicIdFromUrl } from '../../utils/cloudinary'
+import { getPublicIdFromUrl } from '../utils/cloudinary'
 
 cloudinary.config({
   cloud_name: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME,
