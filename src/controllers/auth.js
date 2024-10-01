@@ -49,15 +49,28 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: 'Wrong email or password' })
     }
 
-    const token = jwt.sign({ id: user.id }, import.meta.env.VITE_JWT_SECRET, {
-      expiresIn: import.meta.env.VITE_JWT_EXPIRES_IN,
-    })
+    const token = generateToken(user)
 
     res.status(200).json({
       message: 'Login successful',
       token,
+      isAdmin: user.role === 'admin',
     })
   } catch (error) {
     res.status(400).json(error)
   }
+}
+
+const generateToken = (user) => {
+  const payload = {
+    id: user.id,
+    email: user.email,
+    role: user.role,
+  }
+
+  const token = jwt.sign(payload, import.meta.env.VITE_JWT_SECRET, {
+    expiresIn: import.meta.env.VITE_JWT_EXPIRES_IN,
+  })
+
+  return token
 }

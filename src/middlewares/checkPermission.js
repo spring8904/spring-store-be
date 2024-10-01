@@ -1,35 +1,24 @@
 import jwt from 'jsonwebtoken'
-import User from '../models/User'
 
 const checkPermission = async (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1]
+
+  if (!token) return res.status(401).json({ message: 'No token provided' })
+
   try {
-    const token = req.headers.authorization?.split(' ')[1]
+    const decoded = jwt.verify(token, import.meta.env.VITE_JWT_SECRET)
 
-    if (!token)
-      return res
-        .status(401)
-        .json({ message: 'No token provided, authorization denied' })
-
-    let decoded
-    try {
-      decoded = jwt.verify(token, import.meta.env.VITE_JWT_SECRET)
-    } catch (error) {
-      if (error.name === 'TokenExpiredError') {
-        return res.status(401).json({ error: 'Token expired, need to renew' })
-      } else {
-        return res.status(401).json({ error: 'Invalid Token' })
-      }
-    }
-
-    const user = await User.findById(decoded.id)
-
-    if (!user || user.role !== 'admin') {
-      return res.status(401).json({ error: 'Unauthorized' })
+    if (decoded.role !== 'admin') {
+      return res.status(403).json({ message: 'Permission denied' })
     }
 
     next()
   } catch (error) {
-    res.status(400).json(error)
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired, need to renew' })
+    } else {
+      return res.status(401).json({ error: 'Invalid Token' })
+    }
   }
 }
 
