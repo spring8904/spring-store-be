@@ -14,8 +14,8 @@ const checkPermission = async (req, res, next) => {
     next()
   } catch (error) {
     return error.name === 'TokenExpiredError'
-      ? res.status(401).json({ error: 'Token expired, need to renew' })
-      : res.status(401).json({ error: 'Invalid Token' })
+      ? res.status(401).json({ message: 'Token expired, need to renew' })
+      : res.status(401).json({ message: 'Invalid Token' })
   }
 }
 
