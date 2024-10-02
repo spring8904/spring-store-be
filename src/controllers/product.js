@@ -17,9 +17,7 @@ export const getOneProduct = async (req, res) => {
   try {
     const data = await Product.findById(req.params.id)
 
-    if (!data) {
-      return res.status(404).json({ message: 'Not found' })
-    }
+    if (!data) return res.status(404).json({ message: 'Not found' })
 
     res.status(200).json({ data })
   } catch (error) {
@@ -49,6 +47,7 @@ export const createProduct = async (req, res) => {
       )
       await cloudinary.api.delete_resources(publicIds)
     }
+
     res.status(400).json(error)
   }
 }
@@ -68,17 +67,15 @@ export const updateProduct = async (req, res) => {
     const sanitizedProduct = (({ _id, updatedAt, key, createdAt, ...rest }) =>
       rest)(product)
 
-    if (deepEqual(sanitizedProduct, req.body)) {
+    if (deepEqual(sanitizedProduct, req.body))
       return res.status(200).json({ message: 'No changes detected' })
-    }
 
     const data = await Product.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     })
 
-    if (data.thumbnail !== product.thumbnail) {
+    if (data.thumbnail !== product.thumbnail)
       await cloudinary.uploader.destroy(getPublicIdFromUrl(product.thumbnail))
-    }
 
     const oldImages = product.images
     const newImages = req.body.images

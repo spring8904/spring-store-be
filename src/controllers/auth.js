@@ -14,9 +14,8 @@ export const register = async (req, res) => {
     const { email, password } = req.body
 
     const existed = await User.findOne({ email })
-    if (existed) {
+    if (existed)
       return res.status(400).json({ message: 'Email has been registered' })
-    }
 
     const hashPassword = await bcryptjs.hash(password, 10)
 
@@ -41,13 +40,11 @@ export const login = async (req, res) => {
     const { email, password } = req.body
 
     const user = await User.findOne({ email })
-    if (!user) {
+    if (!user)
       return res.status(400).json({ message: 'Wrong email or password' })
-    }
 
-    if (!(await bcryptjs.compare(password, user.password))) {
+    if (!(await bcryptjs.compare(password, user.password)))
       return res.status(400).json({ message: 'Wrong email or password' })
-    }
 
     const token = generateToken(user)
 

@@ -8,17 +8,14 @@ const checkPermission = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, import.meta.env.VITE_JWT_SECRET)
 
-    if (decoded.role !== 'admin') {
+    if (decoded.role !== 'admin')
       return res.status(403).json({ message: 'Permission denied' })
-    }
 
     next()
   } catch (error) {
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ error: 'Token expired, need to renew' })
-    } else {
-      return res.status(401).json({ error: 'Invalid Token' })
-    }
+    return error.name === 'TokenExpiredError'
+      ? res.status(401).json({ error: 'Token expired, need to renew' })
+      : res.status(401).json({ error: 'Invalid Token' })
   }
 }
 

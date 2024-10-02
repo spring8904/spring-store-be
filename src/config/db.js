@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-async function connectMongoDB(uri) {
+const connectMongoDB = async (uri) => {
   try {
     await mongoose.connect(uri)
   } catch (error) {
