@@ -70,11 +70,7 @@ export const updateProduct = async (req, res) => {
     if (deepEqual(sanitizedProduct, req.body))
       return res.status(200).json({ message: 'No changes detected' })
 
-    const data = await Product.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    })
-
-    if (data.thumbnail !== product.thumbnail)
+    if (req.body.thumbnail !== product.thumbnail)
       await cloudinary.uploader.destroy(getPublicIdFromUrl(product.thumbnail))
 
     const oldImages = product.images
@@ -85,6 +81,10 @@ export const updateProduct = async (req, res) => {
       .map((image) => getPublicIdFromUrl(image))
 
     if (toBeDeleted.length) await cloudinary.api.delete_resources(toBeDeleted)
+
+    const data = await Product.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    })
 
     res.status(200).json({ message: 'Product update successful', data })
   } catch (error) {
@@ -108,15 +108,19 @@ export const updateProduct = async (req, res) => {
 
 export const deleteProduct = async (req, res) => {
   try {
-    const data = await Product.findByIdAndDelete(req.params.id)
+    const product = await Product.findById(req.params.id)
 
-    if (data?.thumbnail)
-      await cloudinary.uploader.destroy(getPublicIdFromUrl(data.thumbnail))
+    if (product?.thumbnail)
+      await cloudinary.uploader.destroy(getPublicIdFromUrl(product.thumbnail))
 
-    if (data?.images) {
-      const toBeDeleted = data.images.map((image) => getPublicIdFromUrl(image))
+    if (product?.images.length) {
+      const toBeDeleted = product.images.map((image) =>
+        getPublicIdFromUrl(image),
+      )
       await cloudinary.api.delete_resources(toBeDeleted)
     }
+
+    const data = await Product.findByIdAndDelete(req.params.id)
 
     res.status(200).json({ message: 'Product deleted successfully', data })
   } catch (error) {
