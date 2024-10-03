@@ -1,10 +1,10 @@
-import { v2 as cloudinary } from 'cloudinary'
 import deepEqual from 'deep-equal'
 import Product from '../models/Product'
-import { getPublicIdFromUrl } from '../utils/cloudinary'
+import { getPublicIdFromUrl } from '../utils'
 import { createValidator, updateValidator } from '../validations/product'
+import cloudinary from '../config/cloudinary'
 
-export const getAllProduct = async (req, res) => {
+export const getAllProducts = async (req, res) => {
   try {
     const data = await Product.find()
     res.status(200).json({ data })
@@ -13,7 +13,7 @@ export const getAllProduct = async (req, res) => {
   }
 }
 
-export const getOneProduct = async (req, res) => {
+export const getProductById = async (req, res) => {
   try {
     const data = await Product.findById(req.params.id)
 

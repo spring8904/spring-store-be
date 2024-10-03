@@ -2,17 +2,17 @@ import { Router } from 'express'
 import {
   createProduct,
   deleteProduct,
-  getAllProduct,
-  getOneProduct,
+  getAllProducts,
+  getProductById,
   updateProduct,
 } from '../controllers/product'
 import checkPermission from '../middlewares/checkPermission'
 
 const productRouter = Router()
 
-productRouter.get('/', getAllProduct)
+productRouter.get('/', getAllProducts)
+productRouter.get('/:id', getProductById)
 productRouter.post('/', checkPermission, createProduct)
-productRouter.get('/:id', getOneProduct)
 productRouter.put('/:id', checkPermission, updateProduct)
 productRouter.delete('/:id', checkPermission, deleteProduct)
 
