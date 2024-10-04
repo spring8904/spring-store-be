@@ -2,18 +2,20 @@ import { Router } from 'express'
 import {
   createProduct,
   deleteProduct,
-  getAllProducts,
   getProductById,
+  getProducts,
   updateProduct,
 } from '../controllers/product'
-import checkPermission from '../middlewares/checkPermission'
+import { authMiddleware, roleMiddleware } from '../middlewares/auth'
 
 const productRouter = Router()
 
-productRouter.get('/', getAllProducts)
+const adminMiddleware = [authMiddleware, roleMiddleware('admin')]
+
+productRouter.get('/', getProducts)
 productRouter.get('/:id', getProductById)
-productRouter.post('/', checkPermission, createProduct)
-productRouter.put('/:id', checkPermission, updateProduct)
-productRouter.delete('/:id', checkPermission, deleteProduct)
+productRouter.post('/', adminMiddleware, createProduct)
+productRouter.put('/:id', adminMiddleware, updateProduct)
+productRouter.delete('/:id', adminMiddleware, deleteProduct)
 
 export default productRouter

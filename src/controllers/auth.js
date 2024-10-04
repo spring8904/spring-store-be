@@ -19,11 +19,9 @@ export const register = async (req, res) => {
 
     const hashPassword = await bcryptjs.hash(password, 10)
 
-    const data = await User.create({ email, password: hashPassword })
-    data.password = undefined
-    data.role = undefined
+    await User.create({ email, password: hashPassword })
 
-    res.status(200).json({ message: 'Registration successful', data })
+    res.status(200).json({ message: 'Registration successful' })
   } catch (error) {
     res.status(400).json(error)
   }
@@ -46,7 +44,16 @@ export const login = async (req, res) => {
     if (!(await bcryptjs.compare(password, user.password)))
       return res.status(400).json({ message: 'Wrong email or password' })
 
-    const token = generateToken(user)
+    const token = jwt.sign(
+      {
+        id: user.id,
+        role: user.role,
+      },
+      import.meta.env.VITE_JWT_SECRET,
+      {
+        expiresIn: import.meta.env.VITE_JWT_EXPIRES_IN,
+      },
+    )
 
     res.status(200).json({
       message: 'Login successful',
@@ -56,18 +63,4 @@ export const login = async (req, res) => {
   } catch (error) {
     res.status(400).json(error)
   }
-}
-
-const generateToken = (user) => {
-  const payload = {
-    id: user.id,
-    email: user.email,
-    role: user.role,
-  }
-
-  const token = jwt.sign(payload, import.meta.env.VITE_JWT_SECRET, {
-    expiresIn: import.meta.env.VITE_JWT_EXPIRES_IN,
-  })
-
-  return token
 }

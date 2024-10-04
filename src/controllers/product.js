@@ -4,7 +4,7 @@ import { getPublicIdFromUrl } from '../utils'
 import { createValidator, updateValidator } from '../validations/product'
 import cloudinary from '../config/cloudinary'
 
-export const getAllProducts = async (req, res) => {
+export const getProducts = async (req, res) => {
   try {
     const data = await Product.find()
     res.status(200).json({ data })
@@ -16,7 +16,6 @@ export const getAllProducts = async (req, res) => {
 export const getProductById = async (req, res) => {
   try {
     const data = await Product.findById(req.params.id)
-
     if (!data) return res.status(404).json({ message: 'Not found' })
 
     res.status(200).json({ data })
@@ -28,7 +27,6 @@ export const getProductById = async (req, res) => {
 export const createProduct = async (req, res) => {
   try {
     const { error } = createValidator.validate(req.body)
-
     if (error) {
       const message = error.details.map((err) => err.message)
       return res.status(400).json({ message })
@@ -55,13 +53,13 @@ export const createProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const { error } = updateValidator.validate(req.body)
-
     if (error) {
       const message = error.details.map((err) => err.message)
       return res.status(400).json({ message })
     }
 
     const product = await Product.findById(req.params.id)
+    if (!product) return res.status(404).json({ message: 'Not found' })
 
     // eslint-disable-next-line no-unused-vars
     const sanitizedProduct = (({ _id, updatedAt, key, createdAt, ...rest }) =>
@@ -109,6 +107,7 @@ export const updateProduct = async (req, res) => {
 export const deleteProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id)
+    if (!product) return res.status(404).json({ message: 'Not found' })
 
     if (product?.thumbnail)
       await cloudinary.uploader.destroy(getPublicIdFromUrl(product.thumbnail))

@@ -1,9 +1,11 @@
 import { Router } from 'express'
 import { deleteImages } from '../controllers/cloudinary'
-import checkPermission from '../middlewares/checkPermission'
+import { authMiddleware, roleMiddleware } from '../middlewares/auth'
 
 const cloudinaryRouter = Router()
 
-cloudinaryRouter.post('/delete', checkPermission, deleteImages)
+const adminMiddleware = [authMiddleware, roleMiddleware('admin')]
+
+cloudinaryRouter.post('/delete', adminMiddleware, deleteImages)
 
 export default cloudinaryRouter
