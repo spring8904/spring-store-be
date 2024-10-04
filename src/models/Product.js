@@ -6,13 +6,24 @@ const schema = new Schema(
       type: String,
       required: true,
     },
-    price: {
-      type: Number,
-      required: true,
-    },
     description: {
       type: String,
       required: true,
+    },
+    price: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    quantity: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+    status: {
+      type: String,
+      enum: ['draft', 'published', 'inactive'],
+      default: 'draft',
     },
     thumbnail: {
       type: String,

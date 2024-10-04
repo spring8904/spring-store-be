@@ -4,11 +4,13 @@ const schema = new Schema(
   {
     email: {
       type: String,
+      unique: true,
       require: true,
     },
     role: {
       type: String,
-      default: 'member',
+      enum: ['admin', 'customer'],
+      default: 'customer',
     },
     password: {
       type: String,
