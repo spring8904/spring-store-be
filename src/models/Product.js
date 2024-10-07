@@ -1,10 +1,16 @@
 import { model, Schema } from 'mongoose'
+import slugify from 'slugify'
 
 const schema = new Schema(
   {
     title: {
       type: String,
       required: true,
+      unique: true,
+    },
+    slug: {
+      type: String,
+      unique: true,
     },
     description: {
       type: String,
@@ -38,5 +44,12 @@ const schema = new Schema(
     versionKey: false,
   },
 )
+
+schema.pre('save', function (next) {
+  if (this.isModified('title')) {
+    this.slug = slugify(this.title, { lower: true, strict: true })
+  }
+  next()
+})
 
 export default model('Product', schema)
