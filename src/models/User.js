@@ -5,7 +5,7 @@ const schema = new Schema(
     email: {
       type: String,
       unique: true,
-      require: true,
+      required: true,
     },
     role: {
       type: String,
@@ -14,7 +14,7 @@ const schema = new Schema(
     },
     password: {
       type: String,
-      require: true,
+      required: true,
     },
   },
   {
