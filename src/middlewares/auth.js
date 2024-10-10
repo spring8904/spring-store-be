@@ -19,8 +19,6 @@ export const authMiddleware = async (req, res, next) => {
         .json({ message: 'User not found' })
     }
 
-    console.log(user)
-
     req.user = user
     next()
     // eslint-disable-next-line no-unused-vars
@@ -52,7 +50,10 @@ export const validateUserOwnership = (req, res, next) => {
       .status(StatusCodes.UNAUTHORIZED)
       .json({ message: 'Permission denied' })
 
-  if (req.user.id !== req.body.userId)
+  const userId = req.params.userId || req.body.userId
+  console.log(userId)
+
+  if (req.user.id !== userId)
     return res.status(StatusCodes.FORBIDDEN).json({
       message: 'Forbidden',
     })

@@ -6,6 +6,6 @@ const authRouter = Router()
 
 authRouter.post('/login', login)
 authRouter.post('/register', register)
-authRouter.get('/current-user', authMiddleware, getCurrentUser)
+authRouter.get('/me', authMiddleware, getCurrentUser)
 
 export default authRouter

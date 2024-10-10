@@ -79,7 +79,7 @@ export const getCurrentUser = async (req, res) => {
         .status(StatusCodes.UNAUTHORIZED)
         .json({ message: 'Permission denied' })
 
-    const user = await User.findById(req.user.id).select('-password')
+    const user = await User.findById(req.user.id, '-_id email role')
     if (!user)
       return res.status(StatusCodes.NOT_FOUND).json({ message: 'Not found' })
 

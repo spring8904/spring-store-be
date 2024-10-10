@@ -7,14 +7,14 @@ import {
 } from '../validations/cart'
 
 export const getCartByUserId = async (req, res) => {
-  const { error } = getCartByUserIdValidator.validate(req.body)
+  const { error } = getCartByUserIdValidator.validate(req.params)
   if (error) {
     return res
       .status(StatusCodes.BAD_REQUEST)
       .json({ message: error.details[0].message })
   }
 
-  const { userId } = req.body
+  const { userId } = req.params
   try {
     const data = await Cart.findOne({ user: userId }).populate(
       'products.product',
@@ -60,6 +60,9 @@ export const addProductToCart = async (req, res) => {
     }
 
     await cart.save()
+
+    cart = await Cart.findOne({ user: userId }).populate('products.product')
+
     res.status(StatusCodes.OK).json(cart)
   } catch (error) {
     res
@@ -79,14 +82,16 @@ export const updateProductQuantity = async (req, res) => {
   const { userId, productId } = req.body
   const { quantity } = req.body
   try {
-    const cart = await Cart.findOne({ user: userId })
+    const cart = await Cart.findOne({ user: userId }).populate(
+      'products.product',
+    )
 
     if (!cart) {
       return res.status(StatusCodes.NOT_FOUND).json({ error: 'Cart not found' })
     }
 
     const productInCart = cart.products.find(
-      (p) => p.product.toString() == productId,
+      (p) => p.product.id.toString() == productId,
     )
 
     if (!productInCart)
@@ -112,8 +117,11 @@ export const removeProductFromCart = async (req, res) => {
   }
 
   const { userId, productId } = req.body
+
   try {
-    const cart = await Cart.findOne({ user: userId })
+    const cart = await Cart.findOne({ user: userId }).populate(
+      'products.product',
+    )
 
     const productInCart = cart.products.find(
       (p) => p.product.toString() == productId,
@@ -129,6 +137,7 @@ export const removeProductFromCart = async (req, res) => {
     )
 
     await cart.save()
+
     res.status(StatusCodes.OK).json(cart)
   } catch (error) {
     res.status(StatusCodes.BAD_REQUEST).json({ message: error.message })

@@ -9,11 +9,13 @@ import { authMiddleware, validateUserOwnership } from '../middlewares/auth'
 
 const cartRouter = Router()
 
-cartRouter.use(authMiddleware, validateUserOwnership)
+cartRouter.use(authMiddleware)
+
+cartRouter.use('/:userId', validateUserOwnership, getCartByUserId)
 
 cartRouter
   .route('/')
-  .get(getCartByUserId)
+  .all(validateUserOwnership)
   .post(addProductToCart)
   .put(updateProductQuantity)
   .delete(removeProductFromCart)
