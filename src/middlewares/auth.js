@@ -1,35 +1,59 @@
+import { StatusCodes } from 'http-status-codes'
 import jwt from 'jsonwebtoken'
+import User from '../models/User'
 
-export const authMiddleware = (req, res, next) => {
+export const authMiddleware = async (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1]
 
-  if (!token) return res.status(401).json({ message: 'No token provided' })
+  if (!token)
+    return res
+      .status(StatusCodes.UNAUTHORIZED)
+      .json({ message: 'No token provided' })
 
   try {
-    req.user = jwt.verify(token, import.meta.env.VITE_JWT_SECRET)
+    const decoded = jwt.verify(token, import.meta.env.VITE_JWT_SECRET)
+    const user = await User.findById(decoded.id).select('-password')
+    if (!user) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'User not found' })
+    }
 
+    console.log(user)
+
+    req.user = user
     next()
     // eslint-disable-next-line no-unused-vars
   } catch (error) {
-    return res.status(401).json({ message: 'Invalid Token' })
+    return res
+      .status(StatusCodes.UNAUTHORIZED)
+      .json({ message: 'Invalid Token' })
   }
 }
 
 export const roleMiddleware = (requiredRole) => (req, res, next) => {
-  if (!req.user) return res.status(401).json({ message: 'Permission denied' })
+  if (!req.user)
+    return res
+      .status(StatusCodes.UNAUTHORIZED)
+      .json({ message: 'Permission denied' })
 
   const { role } = req.user
   if (role !== requiredRole)
-    return res.status(403).json({ message: 'Permission denied' })
+    return res.status(StatusCodes.FORBIDDEN).json({
+      message: 'Forbidden',
+    })
 
   next()
 }
 
 export const validateUserOwnership = (req, res, next) => {
-  if (!req.user) return res.status(401).json({ message: 'Permission denied' })
+  if (!req.user)
+    return res
+      .status(StatusCodes.UNAUTHORIZED)
+      .json({ message: 'Permission denied' })
 
-  if (req.user.id !== req.params.userId)
-    return res.status(403).json({
+  if (req.user.id !== req.body.userId)
+    return res.status(StatusCodes.FORBIDDEN).json({
       message: 'Forbidden',
     })
 

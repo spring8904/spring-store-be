@@ -28,4 +28,4 @@ const schema = new Schema(
   },
 )
 
-export default model('Card', schema)
+export default model('Cart', schema)

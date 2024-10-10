@@ -1,5 +1,4 @@
 import { model, Schema } from 'mongoose'
-import slugify from 'slugify'
 
 const schema = new Schema(
   {
@@ -44,12 +43,5 @@ const schema = new Schema(
     versionKey: false,
   },
 )
-
-schema.pre('save', function (next) {
-  if (this.isModified('title')) {
-    this.slug = slugify(this.title, { lower: true, strict: true })
-  }
-  next()
-})
 
 export default model('Product', schema)
