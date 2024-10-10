@@ -5,12 +5,17 @@ import {
   removeFromCard,
   updateQuantity,
 } from '../controllers/card'
+import { authMiddleware, validateUserOwnership } from '../middlewares/auth'
 
 const cardRouter = Router()
 
-cardRouter.get('/:userId', getCard)
-cardRouter.post('/:userId', addToCard)
-cardRouter.put('/:userId/:productId', updateQuantity)
-cardRouter.delete('/:userId/:productId', removeFromCard)
+cardRouter.use('/:userId', authMiddleware, validateUserOwnership)
+
+cardRouter.route('/:userId').get(getCard).post(addToCard)
+
+cardRouter
+  .route('/:userId/:productId')
+  .put(updateQuantity)
+  .delete(removeFromCard)
 
 export default cardRouter
