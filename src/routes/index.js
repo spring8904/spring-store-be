@@ -1,8 +1,8 @@
 import express from 'express'
-import authRouter from './auth'
-import cloudinaryRouter from './cloudinary'
-import productRouter from './product'
-import cartRouter from './cart'
+import authRouter from './auth.routes'
+import cloudinaryRouter from './cloudinary.routes'
+import productRouter from './product.routes'
+import cartRouter from './cart.routes'
 
 const router = express.Router()
 

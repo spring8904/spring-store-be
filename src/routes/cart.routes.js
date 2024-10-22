@@ -4,8 +4,11 @@ import {
   getCartByUserId,
   removeProductFromCart,
   updateProductQuantity,
-} from '../controllers/cart'
-import { authMiddleware, validateUserOwnership } from '../middlewares/auth'
+} from '../controllers/cart.controller'
+import {
+  authMiddleware,
+  validateUserOwnership,
+} from '../middlewares/auth.middleware'
 
 const cartRouter = Router()
 const itemRouter = Router({ mergeParams: true })

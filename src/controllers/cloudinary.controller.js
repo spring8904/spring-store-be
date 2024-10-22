@@ -1,5 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
-import cloudinary from '../config/cloudinary'
+import cloudinary from '../config/cloudinary.config'
 import { getPublicIdFromUrl } from '../utils'
 
 export const deleteImages = async (req, res) => {

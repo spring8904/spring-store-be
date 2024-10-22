@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes'
 import jwt from 'jsonwebtoken'
-import User from '../models/User'
 import BlacklistedToken from '../models/BlacklistedToken'
+import User from '../models/User'
 
 export const authMiddleware = async (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1]

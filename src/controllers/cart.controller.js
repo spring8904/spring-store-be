@@ -1,11 +1,11 @@
 import { StatusCodes } from 'http-status-codes'
 import Cart from '../models/Cart'
+import Product from '../models/Product'
 import {
   getCartByUserIdSchema,
   productCartOperationSchema,
   removeProductFromCartSchema,
-} from '../validations/cart'
-import Product from '../models/Product'
+} from '../schemas/cart.schema'
 import { handleValidationError } from '../utils'
 
 export const getCartByUserId = async (req, res) => {

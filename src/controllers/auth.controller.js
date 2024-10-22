@@ -1,10 +1,10 @@
 import bcryptjs from 'bcryptjs'
 import { StatusCodes } from 'http-status-codes'
 import jwt from 'jsonwebtoken'
-import User from '../models/User'
-import { loginSchema, registerSchema } from '../validations/auth'
-import { handleValidationError } from '../utils'
 import BlacklistedToken from '../models/BlacklistedToken'
+import User from '../models/User'
+import { loginSchema, registerSchema } from '../schemas/auth.schema'
+import { handleValidationError } from '../utils'
 
 export const register = async (req, res) => {
   const { error } = registerSchema.validate(req.body)

@@ -1,6 +1,6 @@
 import { Router } from 'express'
-import { deleteImages } from '../controllers/cloudinary'
-import { authMiddleware, roleMiddleware } from '../middlewares/auth'
+import { deleteImages } from '../controllers/cloudinary.controller'
+import { authMiddleware, roleMiddleware } from '../middlewares/auth.middleware'
 
 const cloudinaryRouter = Router()
 
