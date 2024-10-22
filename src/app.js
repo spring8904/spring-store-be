@@ -11,6 +11,6 @@ app.use(express.json())
 app.use(morgan('dev'))
 app.use('/api', router)
 
-connectMongoDB(import.meta.env.VITE_MONGO_URI)
+connectMongoDB()
 
 export const viteNodeApp = app

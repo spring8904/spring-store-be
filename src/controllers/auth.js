@@ -2,18 +2,17 @@ import bcryptjs from 'bcryptjs'
 import { StatusCodes } from 'http-status-codes'
 import jwt from 'jsonwebtoken'
 import User from '../models/User'
-import { loginValidator, registerValidator } from '../validations/auth'
+import { loginSchema, registerSchema } from '../validations/auth'
+import { handleValidationError } from '../utils'
+import BlacklistedToken from '../models/BlacklistedToken'
 
 export const register = async (req, res) => {
+  const { error } = registerSchema.validate(req.body)
+  if (error) return handleValidationError(error, res)
+
+  const { email, password } = req.body
+
   try {
-    const { error } = registerValidator.validate(req.body)
-    if (error) {
-      const message = error.details.map((err) => err.message)
-      return res.status(StatusCodes.BAD_REQUEST).json({ message })
-    }
-
-    const { email, password } = req.body
-
     const existed = await User.findOne({ email })
     if (existed)
       return res
@@ -26,27 +25,22 @@ export const register = async (req, res) => {
 
     res.status(StatusCodes.CREATED).json({ message: 'Registration successful' })
   } catch (error) {
-    res.status(StatusCodes.BAD_REQUEST).json({ message: error.message })
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message })
   }
 }
 
 export const login = async (req, res) => {
+  const { error } = loginSchema.validate(req.body)
+  if (error) return handleValidationError(error, res)
+
+  const { email, password } = req.body
+
   try {
-    const { error } = loginValidator.validate(req.body)
-    if (error) {
-      const message = error.details.map((err) => err.message)
-      return res.status(StatusCodes.BAD_REQUEST).json({ message })
-    }
-
-    const { email, password } = req.body
-
     const user = await User.findOne({ email })
-    if (!user)
-      return res
-        .status(StatusCodes.UNAUTHORIZED)
-        .json({ message: 'Wrong email or password' })
 
-    if (!(await bcryptjs.compare(password, user.password)))
+    if (!user || !(await bcryptjs.compare(password, user.password)))
       return res
         .status(StatusCodes.UNAUTHORIZED)
         .json({ message: 'Wrong email or password' })
@@ -73,17 +67,33 @@ export const login = async (req, res) => {
 }
 
 export const getCurrentUser = async (req, res) => {
-  try {
-    if (!req.user)
-      return res
-        .status(StatusCodes.UNAUTHORIZED)
-        .json({ message: 'Permission denied' })
+  if (!req.user)
+    return res
+      .status(StatusCodes.UNAUTHORIZED)
+      .json({ message: 'Permission denied' })
 
-    const user = await User.findById(req.user.id, '-_id email role')
+  try {
+    const user = await User.findById(req.user.id, 'email role')
     if (!user)
       return res.status(StatusCodes.NOT_FOUND).json({ message: 'Not found' })
 
     res.status(StatusCodes.OK).json(user)
+  } catch (error) {
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message })
+  }
+}
+
+export const logout = async (req, res) => {
+  const token = req.header('Authorization').replace('Bearer ', '')
+
+  const decodedToken = jwt.decode(token)
+  const expiryDate = new Date(decodedToken.exp * 1000)
+
+  try {
+    await BlacklistedToken.create({ token, expiryDate })
+    res.status(StatusCodes.OK).json({ message: 'Logout successful' })
   } catch (error) {
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)

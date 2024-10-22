@@ -1,6 +1,6 @@
 import Joi from 'joi'
 
-export const createValidator = Joi.object({
+export const createSchema = Joi.object({
   title: Joi.string().required(),
   description: Joi.string().required(),
   price: Joi.number().min(0).required(),
@@ -10,7 +10,7 @@ export const createValidator = Joi.object({
   images: Joi.array().items(Joi.string()).optional(),
 }).options({ abortEarly: false })
 
-export const updateValidator = Joi.object({
+export const updateSchema = Joi.object({
   title: Joi.string().optional(),
   description: Joi.string().optional(),
   price: Joi.number().min(0).optional(),

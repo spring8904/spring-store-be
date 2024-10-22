@@ -1,18 +1,16 @@
 import { StatusCodes } from 'http-status-codes'
 import Cart from '../models/Cart'
 import {
-  getCartByUserIdValidator,
-  productCartOperationValidator,
-  removeProductFromCartValidator,
+  getCartByUserIdSchema,
+  productCartOperationSchema,
+  removeProductFromCartSchema,
 } from '../validations/cart'
+import Product from '../models/Product'
+import { handleValidationError } from '../utils'
 
 export const getCartByUserId = async (req, res) => {
-  const { error } = getCartByUserIdValidator.validate(req.params)
-  if (error) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: error.details[0].message })
-  }
+  const { error } = getCartByUserIdSchema.validate(req.params)
+  if (error) return handleValidationError(error, res)
 
   const { userId } = req.params
   try {
@@ -31,16 +29,27 @@ export const getCartByUserId = async (req, res) => {
 }
 
 export const addProductToCart = async (req, res) => {
-  const { error } = productCartOperationValidator.validate(req.body)
+  const { error } = productCartOperationSchema.validate({
+    ...req.params,
+    ...req.body,
+  })
+  if (error) return handleValidationError(error, res)
 
-  if (error) {
-    const message = error.details.map((err) => err.message)
-    return res.status(StatusCodes.BAD_REQUEST).json({ message })
-  }
-
-  const { userId } = req.body
+  const { userId } = req.params
   const { productId, quantity } = req.body
   try {
+    const productQuantity = await Product.findById(productId).select('quantity')
+
+    if (!productQuantity)
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Product not found' })
+
+    if (productQuantity.quantity < quantity)
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Not enough stock' })
+
     let cart = await Cart.findOne({
       user: userId,
     })
@@ -52,8 +61,17 @@ export const addProductToCart = async (req, res) => {
       })
     else {
       const productInCart = cart.products.find(
-        (p) => p.product.toString() == productId,
+        (p) => p.product.toString() === productId,
       )
+
+      if (
+        productInCart &&
+        productInCart.quantity + quantity > productQuantity.quantity
+      ) {
+        return res
+          .status(StatusCodes.BAD_REQUEST)
+          .json({ message: 'Not enough stock' })
+      }
 
       if (productInCart) productInCart.quantity += quantity
       else cart.products.push({ product: productId, quantity })
@@ -72,16 +90,27 @@ export const addProductToCart = async (req, res) => {
 }
 
 export const updateProductQuantity = async (req, res) => {
-  const { error } = productCartOperationValidator.validate(req.body)
+  const { error } = productCartOperationSchema.validate({
+    ...req.params,
+    ...req.body,
+  })
+  if (error) return handleValidationError(error, res)
 
-  if (error) {
-    const message = error.details.map((err) => err.message)
-    return res.status(StatusCodes.BAD_REQUEST).json({ message })
-  }
-
-  const { userId, productId } = req.body
+  const { userId, productId } = req.params
   const { quantity } = req.body
   try {
+    const productQuantity = await Product.findById(productId).select('quantity')
+
+    if (!productQuantity)
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Product not found' })
+
+    if (productQuantity.quantity < quantity)
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Not enough stock' })
+
     const cart = await Cart.findOne({ user: userId }).populate(
       'products.product',
     )
@@ -91,7 +120,7 @@ export const updateProductQuantity = async (req, res) => {
     }
 
     const productInCart = cart.products.find(
-      (p) => p.product.id.toString() == productId,
+      (p) => p.product.id.toString() === productId,
     )
 
     if (!productInCart)
@@ -109,14 +138,11 @@ export const updateProductQuantity = async (req, res) => {
 }
 
 export const removeProductFromCart = async (req, res) => {
-  const { error } = removeProductFromCartValidator.validate(req.body)
+  const { error } = removeProductFromCartSchema.validate(req.params)
 
-  if (error) {
-    const message = error.details.map((err) => err.message)
-    return res.status(StatusCodes.BAD_REQUEST).json({ message })
-  }
+  if (error) return handleValidationError(error, res)
 
-  const { userId, productId } = req.body
+  const { userId, productId } = req.params
 
   try {
     const cart = await Cart.findOne({ user: userId }).populate(
@@ -124,7 +150,7 @@ export const removeProductFromCart = async (req, res) => {
     )
 
     const productInCart = cart.products.find(
-      (p) => p.product.toString() == productId,
+      (p) => p.product.id.toString() === productId,
     )
 
     if (!productInCart)
@@ -133,7 +159,7 @@ export const removeProductFromCart = async (req, res) => {
         .json({ message: 'Product not found' })
 
     cart.products = cart.products.filter(
-      (p) => p.product.toString() !== productId,
+      (p) => p.product.id.toString() !== productId,
     )
 
     await cart.save()

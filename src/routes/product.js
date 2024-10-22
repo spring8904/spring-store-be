@@ -18,12 +18,16 @@ const uploadProductImages = uploadCloud.fields([
   { name: 'imagesFile', maxCount: 10 },
 ])
 
-productRouter.get('/', getProducts)
-productRouter.get('/:slug', getProductBySlug)
-productRouter.post('/', adminMiddleware, uploadProductImages, createProduct)
+productRouter
+  .route('/')
+  .get(getProducts)
+  .post(adminMiddleware, uploadProductImages, createProduct)
+
 productRouter
   .route('/:id')
   .put(adminMiddleware, uploadProductImages, updateProduct)
   .delete(adminMiddleware, deleteProduct)
+
+productRouter.get('/:slug', getProductBySlug)
 
 export default productRouter

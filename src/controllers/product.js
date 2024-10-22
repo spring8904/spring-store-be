@@ -1,17 +1,19 @@
 import deepEqual from 'deep-equal'
-import Product from '../models/Product'
-import { getPublicIdFromUrl } from '../utils'
-import { createValidator, updateValidator } from '../validations/product'
-import cloudinary from '../config/cloudinary'
 import { StatusCodes } from 'http-status-codes'
 import slugify from 'slugify'
+import cloudinary from '../config/cloudinary'
+import Product from '../models/Product'
+import { getPublicIdFromUrl } from '../utils'
+import { createSchema, updateSchema } from '../validations/product'
 
 export const getProducts = async (req, res) => {
   try {
     const data = await Product.find()
     res.status(StatusCodes.OK).json(data)
   } catch (error) {
-    res.status(StatusCodes.BAD_REQUEST).json({ message: error.message })
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message })
   }
 }
 
@@ -24,7 +26,9 @@ export const getProductBySlug = async (req, res) => {
 
     res.status(StatusCodes.OK).json(data)
   } catch (error) {
-    res.status(StatusCodes.BAD_REQUEST).json({ message: error.message })
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message })
   }
 }
 
@@ -49,24 +53,28 @@ const deleteImagesFromCloudinary = async (images) => {
   }
 }
 
+const deleteThumbAndImages = async (thumbnail, images, pThumbnail = '') => {
+  if (thumbnail && thumbnail !== pThumbnail)
+    await cloudinary.uploader.destroy(getPublicIdFromUrl(thumbnail))
+  await deleteImagesFromCloudinary(images)
+}
+
 export const createProduct = async (req, res) => {
   const { thumbnail, images } = getImagesData(req)
   const product = { ...req.body, thumbnail, images }
 
+  const { error, value } = createSchema.validate(product)
+
+  if (error) {
+    const message = error.details.map((err) => err.message)
+    await deleteThumbAndImages(thumbnail, images)
+    return res.status(StatusCodes.BAD_REQUEST).json({ message })
+  }
+
   try {
-    const { error, value } = createValidator.validate(product)
-
-    if (error) {
-      const message = error.details.map((err) => err.message)
-      if (thumbnail)
-        await cloudinary.uploader.destroy(getPublicIdFromUrl(thumbnail))
-
-      await deleteImagesFromCloudinary(images)
-      return res.status(StatusCodes.BAD_REQUEST).json({ message })
-    }
-
     const existingProduct = await Product.findOne({ title: product.title })
     if (existingProduct) {
+      await deleteThumbAndImages(thumbnail, images)
       return res
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: 'Product already exists' })
@@ -77,20 +85,23 @@ export const createProduct = async (req, res) => {
     const data = await Product.create({ ...product, slug })
     res.status(StatusCodes.CREATED).json(data)
   } catch (error) {
-    if (thumbnail)
-      await cloudinary.uploader.destroy(getPublicIdFromUrl(thumbnail))
-    await deleteImagesFromCloudinary(images)
-    res.status(StatusCodes.BAD_REQUEST).json({ message: error.message })
+    await deleteThumbAndImages(thumbnail, images)
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message })
   }
 }
 
 export const updateProduct = async (req, res) => {
+  const { thumbnail, images } = getImagesData(req)
+
   try {
     const product = await Product.findById(req.params.id)
-    if (!product)
+    if (!product) {
+      await deleteThumbAndImages(thumbnail, images)
       return res.status(StatusCodes.NOT_FOUND).json({ message: 'Not found' })
+    }
 
-    const { thumbnail, images } = getImagesData(req)
     const oldImages = req.body.oldImages
       ? Array.isArray(req.body.oldImages)
         ? req.body.oldImages
@@ -105,14 +116,10 @@ export const updateProduct = async (req, res) => {
       images: images.length ? [...images, ...oldImages] : oldImages,
     }
 
-    const { error } = updateValidator.validate(dataUpdate)
+    const { error } = updateSchema.validate(dataUpdate)
     if (error) {
       const message = error.details.map((err) => err.message)
-      if (thumbnail && thumbnail !== product.thumbnail) {
-        await cloudinary.uploader.destroy(getPublicIdFromUrl(thumbnail))
-      }
-
-      await deleteImagesFromCloudinary(images)
+      await deleteThumbAndImages(thumbnail, images, product.thumbnail)
       return res.status(StatusCodes.BAD_REQUEST).json({ message })
     }
 
@@ -137,16 +144,10 @@ export const updateProduct = async (req, res) => {
 
     res.status(StatusCodes.OK).json(data)
   } catch (error) {
-    const product = await Product.findById(req.params.id)
-    if (!product)
-      return res.status(StatusCodes.NOT_FOUND).json({ message: 'Not found' })
-
-    const { thumbnail, images } = getImagesData(req)
-    if (thumbnail && thumbnail !== product.thumbnail) {
-      await cloudinary.uploader.destroy(getPublicIdFromUrl(thumbnail))
-    }
-    await deleteImagesFromCloudinary(images)
-    res.status(StatusCodes.BAD_REQUEST).json(error)
+    await deleteThumbAndImages(thumbnail, images)
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message })
   }
 }
 
@@ -156,15 +157,14 @@ export const deleteProduct = async (req, res) => {
     if (!product)
       return res.status(StatusCodes.NOT_FOUND).json({ message: 'Not found' })
 
-    if (product?.thumbnail)
-      await cloudinary.uploader.destroy(getPublicIdFromUrl(product.thumbnail))
-
-    await deleteImagesFromCloudinary(product.images)
+    await deleteThumbAndImages(product.thumbnail, product.images)
 
     const data = await Product.findByIdAndDelete(req.params.id)
 
     res.status(StatusCodes.OK).json(data)
   } catch (error) {
-    res.status(StatusCodes.BAD_REQUEST).json(error)
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message })
   }
 }

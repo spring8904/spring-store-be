@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes'
 import jwt from 'jsonwebtoken'
 import User from '../models/User'
+import BlacklistedToken from '../models/BlacklistedToken'
 
 export const authMiddleware = async (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1]
@@ -11,6 +12,13 @@ export const authMiddleware = async (req, res, next) => {
       .json({ message: 'No token provided' })
 
   try {
+    const blacklistedToken = await BlacklistedToken.findOne({ token })
+    if (blacklistedToken) {
+      return res
+        .status(StatusCodes.UNAUTHORIZED)
+        .send({ message: 'Token is blacklisted' })
+    }
+
     const decoded = jwt.verify(token, import.meta.env.VITE_JWT_SECRET)
     const user = await User.findById(decoded.id).select('-password')
     if (!user) {
@@ -25,7 +33,7 @@ export const authMiddleware = async (req, res, next) => {
   } catch (error) {
     return res
       .status(StatusCodes.UNAUTHORIZED)
-      .json({ message: 'Invalid Token' })
+      .json({ message: 'Unauthorized' })
   }
 }
 
@@ -51,8 +59,6 @@ export const validateUserOwnership = (req, res, next) => {
       .json({ message: 'Permission denied' })
 
   const userId = req.params.userId || req.body.userId
-  console.log(userId)
-
   if (req.user.id !== userId)
     return res.status(StatusCodes.FORBIDDEN).json({
       message: 'Forbidden',
