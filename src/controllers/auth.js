@@ -50,6 +50,7 @@ export const login = async (req, res) => {
     })
 
     const sanitizedUser = {
+      _id: user.id,
       email: user.email,
       role: user.role,
     }

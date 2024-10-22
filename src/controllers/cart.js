@@ -14,15 +14,15 @@ export const getCartByUserId = async (req, res) => {
 
   const { userId } = req.params
   try {
-    const data = await Cart.findOne({ user: userId }).populate(
-      'products.product',
-    )
-    if (!data) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ message: 'Cart not found' })
-    }
-    res.status(StatusCodes.OK).json(data)
+    let cart = await Cart.findOne({ user: userId }).populate('products.product')
+    if (!cart)
+      cart = new Cart({
+        user: userId,
+        products: [],
+      })
+    await cart.save()
+
+    res.status(StatusCodes.OK).json(cart)
   } catch (error) {
     res.status(StatusCodes.BAD_REQUEST).json({ message: error.message })
   }
@@ -111,17 +111,15 @@ export const updateProductQuantity = async (req, res) => {
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: 'Not enough stock' })
 
-    const cart = await Cart.findOne({ user: userId }).populate(
-      'products.product',
-    )
+    let cart = await Cart.findOne({ user: userId }).populate('products.product')
+    if (!cart)
+      cart = new Cart({
+        user: userId,
+        products: [],
+      })
+    await cart.save()
 
-    if (!cart) {
-      return res.status(StatusCodes.NOT_FOUND).json({ error: 'Cart not found' })
-    }
-
-    const productInCart = cart.products.find(
-      (p) => p.product.id.toString() === productId,
-    )
+    const productInCart = cart.products.find((p) => p.product.id === productId)
 
     if (!productInCart)
       return res
@@ -149,18 +147,14 @@ export const removeProductFromCart = async (req, res) => {
       'products.product',
     )
 
-    const productInCart = cart.products.find(
-      (p) => p.product.id.toString() === productId,
-    )
+    const productInCart = cart.products.find((p) => p.product.id === productId)
 
     if (!productInCart)
       return res
         .status(StatusCodes.NOT_FOUND)
         .json({ message: 'Product not found' })
 
-    cart.products = cart.products.filter(
-      (p) => p.product.id.toString() !== productId,
-    )
+    cart.products = cart.products.filter((p) => p.product.id !== productId)
 
     await cart.save()
 
