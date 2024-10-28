@@ -3,7 +3,7 @@ import { StatusCodes } from 'http-status-codes'
 import slugify from 'slugify'
 import cloudinary from '../config/cloudinary.config'
 import Product from '../models/Product'
-import { createSchema, updateSchema } from '../schemas/product.schema'
+import { productSchema } from '../schemas/product.schema'
 import { getPublicIdFromUrl } from '../utils'
 
 export const getProducts = async (req, res) => {
@@ -35,7 +35,7 @@ export const getProductBySlug = async (req, res) => {
 const getImagesData = (req) => {
   const thumbnail = req.files?.['thumbnailFile']
     ? req.files['thumbnailFile'][0].path
-    : null
+    : undefined
 
   const images = req.files?.['imagesFile']
     ? Array.isArray(req.files['imagesFile'])
@@ -63,7 +63,7 @@ export const createProduct = async (req, res) => {
   const { thumbnail, images } = getImagesData(req)
   const product = { ...req.body, thumbnail, images }
 
-  const { error, value } = createSchema.validate(product)
+  const { error, value } = productSchema.validate(product)
 
   if (error) {
     const message = error.details.map((err) => err.message)
@@ -116,7 +116,7 @@ export const updateProduct = async (req, res) => {
       images: images.length ? [...images, ...oldImages] : oldImages,
     }
 
-    const { error } = updateSchema.validate(dataUpdate)
+    const { error } = productSchema.validate(dataUpdate)
     if (error) {
       const message = error.details.map((err) => err.message)
       await deleteThumbAndImages(thumbnail, images, product.thumbnail)

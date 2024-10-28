@@ -5,22 +5,18 @@ import {
   removeProductFromCart,
   updateProductQuantity,
 } from '../controllers/cart.controller'
-import {
-  authMiddleware,
-  validateUserOwnership,
-} from '../middlewares/auth.middleware'
+import { authMiddleware } from '../middlewares/auth.middleware'
 
 const cartRouter = Router()
-const itemRouter = Router({ mergeParams: true })
 
 cartRouter.use(authMiddleware)
 
-cartRouter.param('userId', validateUserOwnership)
+cartRouter
+  .route('/')
+  .get(getCartByUserId)
+  .post(addProductToCart)
+  .put(updateProductQuantity)
 
-cartRouter.use('/:userId/:productId', itemRouter)
-
-cartRouter.route('/:userId').get(getCartByUserId).post(addProductToCart)
-
-itemRouter.route('/').put(updateProductQuantity).delete(removeProductFromCart)
+cartRouter.route('/:productId').delete(removeProductFromCart)
 
 export default cartRouter

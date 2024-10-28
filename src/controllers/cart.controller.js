@@ -9,10 +9,10 @@ import {
 import { handleValidationError } from '../utils'
 
 export const getCartByUserId = async (req, res) => {
-  const { error } = getCartByUserIdSchema.validate(req.params)
+  const userId = req.user?.id
+  const { error } = getCartByUserIdSchema.validate({ userId })
   if (error) return handleValidationError(error, res)
 
-  const { userId } = req.params
   try {
     let cart = await Cart.findOne({ user: userId }).populate('products.product')
     if (!cart)
@@ -29,14 +29,16 @@ export const getCartByUserId = async (req, res) => {
 }
 
 export const addProductToCart = async (req, res) => {
+  const userId = req.user?.id
+
+  const { productId, quantity } = req.body
   const { error } = productCartOperationSchema.validate({
-    ...req.params,
-    ...req.body,
+    userId,
+    productId,
+    quantity,
   })
   if (error) return handleValidationError(error, res)
 
-  const { userId } = req.params
-  const { productId, quantity } = req.body
   try {
     const productQuantity = await Product.findById(productId).select('quantity')
 
@@ -90,14 +92,16 @@ export const addProductToCart = async (req, res) => {
 }
 
 export const updateProductQuantity = async (req, res) => {
+  const userId = req.user?.id
+  const { productId, quantity } = req.body
+
   const { error } = productCartOperationSchema.validate({
-    ...req.params,
-    ...req.body,
+    userId,
+    productId,
+    quantity,
   })
   if (error) return handleValidationError(error, res)
 
-  const { userId, productId } = req.params
-  const { quantity } = req.body
   try {
     const productQuantity = await Product.findById(productId).select('quantity')
 
@@ -136,11 +140,11 @@ export const updateProductQuantity = async (req, res) => {
 }
 
 export const removeProductFromCart = async (req, res) => {
-  const { error } = removeProductFromCartSchema.validate(req.params)
+  const userId = req.user?.id
+  const { productId } = req.params
+  const { error } = removeProductFromCartSchema.validate({ userId, productId })
 
   if (error) return handleValidationError(error, res)
-
-  const { userId, productId } = req.params
 
   try {
     const cart = await Cart.findOne({ user: userId }).populate(
