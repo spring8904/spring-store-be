@@ -17,6 +17,6 @@ app.use('/api', router)
 
 app.use((req, res) => res.status(404).json('Route not found'))
 
-app.lister(PORT)
+app.listen(PORT)
 
 export const viteNodeApp = app
