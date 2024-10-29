@@ -11,7 +11,7 @@ const options = {
     },
     servers: [
       {
-        url: import.meta.env.VITE_SERVER_URL,
+        url: import.meta.env.VITE_SERVER_URL + '/api',
       },
     ],
   },

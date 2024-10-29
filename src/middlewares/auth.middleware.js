@@ -51,18 +51,3 @@ export const roleMiddleware = (requiredRole) => (req, res, next) => {
 
   next()
 }
-
-export const validateUserOwnership = (req, res, next) => {
-  if (!req.user)
-    return res
-      .status(StatusCodes.UNAUTHORIZED)
-      .json({ message: 'Permission denied' })
-
-  const userId = req.params.userId || req.body.userId
-  if (req.user.id !== userId)
-    return res.status(StatusCodes.FORBIDDEN).json({
-      message: 'Forbidden',
-    })
-
-  next()
-}

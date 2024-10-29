@@ -18,7 +18,7 @@ paths:
               properties:
                 email:
                   type: string
-                  example: 'user@example.com'
+                  example: 'demo@gmail.com'
                 password:
                   type: string
                   example: 'password123'
@@ -28,18 +28,103 @@ paths:
       responses:
         200:
           description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Login successful'
+                  token:
+                    type: string
+                    example: 'EyJhbGciOiJIUzI1NiIsInR6cCI6IkpXvCJ9.eyJpZCI6IjY3MDgyMjGkNjI2YTQ3ZDA0ZDA2ZmFkNSIxImPhdCI6MTczMDE3NzUwNUwiZXhwIjIxNzMwMjYzOTA3fQ.kNBZuWVRTc3vh13Kb7yqOgDNoUGeF727KpSCmYqWo3U'
+                  user:
+                    type: object
+                    properties:
+                      email:
+                        type: string
+                        example: 'demo@gmail.com'
+                      role:
+                        type: string
+                        example: 'customer'
+        400:
+          description: Invalid email or password
+        401:
+          description: Wrong email or password
+        500:
+          description: Internal server error
   /auth/register:
     post:
       summary: Register a user
       tags:
         - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: 'demo@gmail.com'
+                password:
+                  type: string
+                  example: 'password123'
+              required:
+                - email
+                - password
+      responses:
+        201:
+          description: Registration successful
+        400:
+          description: Invalid email or password
+        500:
+          description: Internal server error
   /auth/logout:
     post:
       summary: Logout a user
       tags:
         - Auth
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Logout successful
+        401:
+          description: Unauthorized
+        500:
+          description: Internal server error
   /auth/me:
     get:
       summary: Get current user
       tags:
         - Auth
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: User found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                    example: 'demo@gmail.com'
+                  role:
+                    type: string
+                    example: 'customer'
+        401:
+          description: User not found
+        500:
+          description: Internal server error
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

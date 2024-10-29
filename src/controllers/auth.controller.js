@@ -50,7 +50,6 @@ export const login = async (req, res) => {
     })
 
     const sanitizedUser = {
-      _id: user.id,
       email: user.email,
       role: user.role,
     }
@@ -68,22 +67,10 @@ export const login = async (req, res) => {
 }
 
 export const getCurrentUser = async (req, res) => {
-  if (!req.user)
-    return res
-      .status(StatusCodes.UNAUTHORIZED)
-      .json({ message: 'Permission denied' })
-
-  try {
-    const user = await User.findById(req.user.id, 'email role')
-    if (!user)
-      return res.status(StatusCodes.NOT_FOUND).json({ message: 'Not found' })
-
-    res.status(StatusCodes.OK).json(user)
-  } catch (error) {
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ message: error.message })
-  }
+  res.status(StatusCodes.OK).json({
+    email: req.user.email,
+    role: req.user.role,
+  })
 }
 
 export const logout = async (req, res) => {
