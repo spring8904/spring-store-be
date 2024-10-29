@@ -1,0 +1,183 @@
+openapi: 3.0.0
+info:
+  title: Product API
+  version: '1.0.0'
+paths:
+  /cart:
+    get:
+      summary: Get cart
+      tags:
+        - Cart
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Get cart successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        400:
+          description: Invalid cart data
+        401:
+          description: Unauthorized
+        500:
+          description: Internal server error
+    post:
+      summary: Add product to cart
+      tags:
+        - Cart
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                productId:
+                  type: string
+                  example: '6703b091a60e0a3004264a9d'
+                quantity:
+                  type: integer
+                  example: 1
+              required:
+                - product
+                - quantity
+      responses:
+        200:
+          description: Add product to cart successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        400:
+          description: Invalid product data
+        401:
+          description: Unauthorized
+        404:
+          description: Product not found
+        500:
+          description: Internal server error
+    put:
+      summary: Update product quantity in cart
+      tags:
+        - Cart
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                productId:
+                  type: string
+                  example: '6703b091a60e0a3004264a9d'
+                quantity:
+                  type: integer
+                  example: 1
+              required:
+                - product
+                - quantity
+      responses:
+        200:
+          description: Update successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        400:
+          description: Invalid product data
+        401:
+          description: Unauthorized
+        404:
+          description: Product not found
+        500:
+          description: Internal server error
+  /cart/{productId}:
+    delete:
+      summary: Remove product from cart
+      tags:
+        - Cart
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: Product id
+      responses:
+        200:
+          description: Remove successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        400:
+          description: Invalid product data
+        401:
+          description: Unauthorized
+        404:
+          description: Product not found
+components:
+  schemas:
+    Cart:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: '6703b091a60e0a3004264a9d'
+        user:
+          type: string
+          example: '6703b091a60e0a3004264a9d'
+        products:
+          type: array
+          items:
+            type: object
+            properties:
+              product:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                    example: '6703b091a60e0a3004264a9d'
+                  title:
+                    type: string
+                    example: 'SAMSUNG Galaxy S24'
+                  description:
+                    type: string
+                    example: 'Product description'
+                  price:
+                    type: number
+                    example: 1012
+                  quantity:
+                    type: integer
+                    example: 10
+                  status:
+                    type: string
+                    enum: ['draft', 'published', 'inactive']
+                    example: 'published'
+                  thumbnail:
+                    type: string
+                    example: 'https://picsum.photos/200/300'
+                  images:
+                    type: array
+                    items:
+                      type: string
+                    example: ['https://picsum.photos/200/300']
+                  slug:
+                    type: string
+                    example: 'samsung-galaxy-s24'
+              quantity:
+                type: integer
+                example: 2
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

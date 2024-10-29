@@ -24,7 +24,9 @@ export const getCartByUserId = async (req, res) => {
 
     res.status(StatusCodes.OK).json(cart)
   } catch (error) {
-    res.status(StatusCodes.BAD_REQUEST).json({ message: error.message })
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message })
   }
 }
 
@@ -141,7 +143,9 @@ export const updateProductQuantity = async (req, res) => {
     await cart.save()
     res.status(StatusCodes.OK).json(cart)
   } catch (error) {
-    res.status(StatusCodes.BAD_REQUEST).json({ message: error.message })
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message })
   }
 }
 
@@ -170,6 +174,8 @@ export const removeProductFromCart = async (req, res) => {
 
     res.status(StatusCodes.OK).json(cart)
   } catch (error) {
-    res.status(StatusCodes.BAD_REQUEST).json({ message: error.message })
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message })
   }
 }
