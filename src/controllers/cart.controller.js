@@ -40,12 +40,18 @@ export const addProductToCart = async (req, res) => {
   if (error) return handleValidationError(error, res)
 
   try {
-    const productQuantity = await Product.findById(productId).select('quantity')
-
-    if (!productQuantity)
+    const product = await Product.findById(productId)
+    if (!product)
       return res
         .status(StatusCodes.NOT_FOUND)
         .json({ message: 'Product not found' })
+
+    if (product.status !== 'published')
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Product is not available' })
+
+    const productQuantity = product.quantity
 
     if (productQuantity.quantity < quantity)
       return res
