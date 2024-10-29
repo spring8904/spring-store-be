@@ -33,14 +33,14 @@ export const getProductBySlug = async (req, res) => {
 }
 
 const getImagesData = (req) => {
-  const thumbnail = req.files?.['thumbnailFile']
-    ? req.files['thumbnailFile'][0].path
+  const thumbnail = req.files?.['thumbnail']
+    ? req.files['thumbnail'][0].path
     : undefined
 
-  const images = req.files?.['imagesFile']
-    ? Array.isArray(req.files['imagesFile'])
-      ? req.files['imagesFile'].map((image) => image.path)
-      : [req.files['imagesFile'].path]
+  const images = req.files?.['images']
+    ? Array.isArray(req.files['images'])
+      ? req.files['images'].map((image) => image.path)
+      : [req.files['images'].path]
     : []
 
   return { thumbnail, images }

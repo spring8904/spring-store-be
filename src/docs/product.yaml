@@ -1,0 +1,228 @@
+openapi: 3.0.0
+info:
+  title: Product API
+  version: '1.0.0'
+paths:
+  /products:
+    get:
+      summary: Get products
+      tags:
+        - Product
+      responses:
+        200:
+          description: Get products successful
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+    post:
+      summary: Create a product
+      tags:
+        - Product
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: 'SAMSUNG Galaxy S24'
+                description:
+                  type: string
+                  example: 'Product description'
+                price:
+                  type: number
+                  example: 1012
+                quantity:
+                  type: integer
+                  example: 10
+                status:
+                  type: string
+                  enum: ['draft', 'published', 'inactive']
+                  example: 'published'
+                thumbnail:
+                  type: string
+                  format: binary
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+              required:
+                - title
+                - description
+                - price
+                - quantity
+                - status
+                - thumbnail
+
+      responses:
+        201:
+          description: Create product successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        400:
+          description: Invalid product data
+        500:
+          description: Internal server error
+  /products/{slug}:
+    get:
+      summary: Get product by slug
+      tags:
+        - Product
+      parameters:
+        - in: path
+          name: slug
+          required: true
+          schema:
+            type: string
+          description: Product slug
+      responses:
+        200:
+          description: Get products successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        404:
+          description: Product not found
+  /products/{id}:
+    put:
+      summary: Update a product
+      tags:
+        - Product
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Product id
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: 'SAMSUNG Galaxy S24'
+                description:
+                  type: string
+                  example: 'Product description'
+                price:
+                  type: number
+                  example: 1012
+                quantity:
+                  type: integer
+                  example: 10
+                status:
+                  type: string
+                  enum: ['draft', 'published', 'inactive']
+                  example: 'published'
+                thumbnail:
+                  type: string
+                  format: binary
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+              required:
+                - title
+                - description
+                - price
+                - quantity
+                - status
+                - thumbnail
+      responses:
+        200:
+          description: Update product successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        400:
+          description: Invalid product data
+        404:
+          description: Product not found
+        500:
+          description: Internal server error
+    delete:
+      summary: Delete a product
+      tags:
+        - Product
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Product id
+      responses:
+        200:
+          description: Delete product successful
+        404:
+          description: Product not found
+        500:
+          description: Internal server error
+components:
+  schemas:
+    Product:
+      required:
+        - title
+        - description
+        - price
+        - quantity
+        - status
+        - thumbnail
+      type: object
+      properties:
+        _id:
+          type: string
+          example: '6703b091a60e0a3004264a9d'
+        title:
+          type: string
+          example: 'SAMSUNG Galaxy S24'
+        description:
+          type: string
+          example: 'Product description'
+        price:
+          type: number
+          example: 1012
+        quantity:
+          type: integer
+          example: 10
+        status:
+          type: string
+          enum: ['draft', 'published', 'inactive']
+          example: 'published'
+        thumbnail:
+          type: string
+          example: 'https://picsum.photos/200/300'
+        images:
+          type: array
+          items:
+            type: string
+          example: ['https://picsum.photos/200/300']
+        slug:
+          type: string
+          example: 'samsung-galaxy-s24'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
