@@ -1,5 +1,6 @@
 import cors from 'cors'
 import express from 'express'
+import { StatusCodes } from 'http-status-codes'
 import morgan from 'morgan'
 import connectMongoDB from './config/db.config'
 import router from './routes'
@@ -15,7 +16,7 @@ app.use(express.json())
 app.use(morgan('dev'))
 app.use('/api', router)
 
-app.use((req, res) => res.status(404).json('Route not found'))
+app.use((req, res) => res.status(StatusCodes.NOT_FOUND).json('Route not found'))
 
 app.listen(PORT)
 
