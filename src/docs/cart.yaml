@@ -39,12 +39,8 @@ paths:
                 productId:
                   type: string
                   example: '6703b091a60e0a3004264a9d'
-                quantity:
-                  type: integer
-                  example: 1
               required:
                 - product
-                - quantity
       responses:
         200:
           description: Add product to cart successful

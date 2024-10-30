@@ -13,11 +13,16 @@ const quantitySchema = Joi.number().integer().min(1).required().messages({
   'any.required': 'Something wrong!',
 })
 
-export const getCartByUserIdSchema = Joi.object({
+export const getCartSchema = Joi.object({
   userId: idSchema,
 })
 
-export const productCartOperationSchema = Joi.object({
+export const addProductToCartSchema = Joi.object({
+  userId: idSchema,
+  productId: idSchema,
+}).options({ abortEarly: false })
+
+export const updateProductQuantitySchema = Joi.object({
   userId: idSchema,
   productId: idSchema,
   quantity: quantitySchema,

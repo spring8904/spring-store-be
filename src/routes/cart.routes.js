@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import {
   addProductToCart,
-  getCartByUserId,
+  getCart,
   removeProductFromCart,
   updateProductQuantity,
 } from '../controllers/cart.controller'
@@ -13,7 +13,7 @@ cartRouter.use(authMiddleware)
 
 cartRouter
   .route('/')
-  .get(getCartByUserId)
+  .get(getCart)
   .post(addProductToCart)
   .put(updateProductQuantity)
 
