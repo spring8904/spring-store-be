@@ -1,10 +1,10 @@
 import deepEqual from 'deep-equal'
 import { StatusCodes } from 'http-status-codes'
 import slugify from 'slugify'
-import cloudinary from '../config/cloudinary.config'
-import Product from '../models/Product'
-import { productSchema } from '../schemas/product.schema'
-import { getPublicIdFromUrl } from '../utils'
+import cloudinary from '../config/cloudinary.config.js'
+import Product from '../models/Product.js'
+import { productSchema } from '../schemas/product.schema.js'
+import getPublicIdFromUrl from '../utils/helpers/getPublicIdFromUrl.js'
 
 export const getProducts = async (req, res) => {
   try {

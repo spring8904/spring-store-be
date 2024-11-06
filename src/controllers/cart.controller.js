@@ -1,13 +1,13 @@
 import { StatusCodes } from 'http-status-codes'
-import Cart from '../models/Cart'
-import Product from '../models/Product'
+import Cart from '../models/Cart.js'
+import Product from '../models/Product.js'
 import {
   addProductToCartSchema,
   getCartSchema,
   removeProductFromCartSchema,
   updateProductQuantitySchema,
-} from '../schemas/cart.schema'
-import { handleValidationError } from '../utils'
+} from '../schemas/cart.schema.js'
+import handleValidationError from '../utils/helpers/handleValidationError.js'
 
 const findOrCreateCart = async (userId) => {
   let cart = await Cart.findOne({ user: userId }).populate('products.product')

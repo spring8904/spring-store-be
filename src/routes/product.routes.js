@@ -5,9 +5,12 @@ import {
   getProductBySlug,
   getProducts,
   updateProduct,
-} from '../controllers/product.controller'
-import { authMiddleware, roleMiddleware } from '../middlewares/auth.middleware'
-import { uploadCloud } from '../middlewares/upload.middleware'
+} from '../controllers/product.controller.js'
+import {
+  authMiddleware,
+  roleMiddleware,
+} from '../middlewares/auth.middleware.js'
+import { uploadCloud } from '../middlewares/upload.middleware.js'
 
 const productRouter = Router()
 

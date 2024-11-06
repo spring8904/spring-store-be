@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes'
 import jwt from 'jsonwebtoken'
-import BlacklistedToken from '../models/BlacklistedToken'
-import User from '../models/User'
+import BlacklistedToken from '../models/BlacklistedToken.js'
+import User from '../models/User.js'
 
 export const authMiddleware = async (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1]
@@ -19,7 +19,7 @@ export const authMiddleware = async (req, res, next) => {
         .send({ message: 'Token is blacklisted' })
     }
 
-    const decoded = jwt.verify(token, import.meta.env.VITE_JWT_SECRET)
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
     const user = await User.findById(decoded.id).select('-password')
     if (!user) {
       return res

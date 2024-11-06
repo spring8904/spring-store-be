@@ -1,17 +1,16 @@
 import swaggerJsdoc from 'swagger-jsdoc'
 import swaggerUi from 'swagger-ui-express'
-import { version } from '../package.json'
 
 const options = {
   definition: {
     openapi: '3.0.0',
     info: {
       title: 'API Documentation',
-      version,
+      version: '1.0.0',
     },
     servers: [
       {
-        url: import.meta.env.VITE_SERVER_URL + '/api',
+        url: process.env.SERVER_URL + '/api',
       },
     ],
   },

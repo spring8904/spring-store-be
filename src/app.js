@@ -1,9 +1,10 @@
 import cors from 'cors'
+import 'dotenv/config'
 import express from 'express'
 import { StatusCodes } from 'http-status-codes'
 import morgan from 'morgan'
-import connectMongoDB from './config/db.config'
-import router from './routes'
+import connectMongoDB from './database/connectMongoDB.js'
+import router from './routes/index.js'
 
 connectMongoDB()
 
@@ -21,6 +22,6 @@ app.use((req, res) => {
   res.status(StatusCodes.NOT_FOUND).send('Route not found')
 })
 
-app.listen(PORT)
-
-export const viteNodeApp = app
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`)
+})

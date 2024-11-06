@@ -1,10 +1,10 @@
 import bcryptjs from 'bcryptjs'
 import { StatusCodes } from 'http-status-codes'
 import jwt from 'jsonwebtoken'
-import BlacklistedToken from '../models/BlacklistedToken'
-import User from '../models/User'
-import { loginSchema, registerSchema } from '../schemas/auth.schema'
-import { handleValidationError } from '../utils'
+import BlacklistedToken from '../models/BlacklistedToken.js'
+import User from '../models/User.js'
+import { loginSchema, registerSchema } from '../schemas/auth.schema.js'
+import handleValidationError from '../utils/helpers/handleValidationError.js'
 
 export const register = async (req, res) => {
   const { error } = registerSchema.validate(req.body)
@@ -45,8 +45,8 @@ export const login = async (req, res) => {
         .status(StatusCodes.UNAUTHORIZED)
         .json({ message: 'Wrong email or password' })
 
-    const token = jwt.sign({ id: user.id }, import.meta.env.VITE_JWT_SECRET, {
-      expiresIn: import.meta.env.VITE_JWT_EXPIRES_IN,
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRES_IN,
     })
 
     const sanitizedUser = {
