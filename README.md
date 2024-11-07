@@ -9,4 +9,5 @@
 
 ## API Documentation:
 
-[https://spring-store-be.onrender.com/api/docs](https://spring-store-be.onrender.com/api/docs)
+Vercel: [https://spring-store-be.vercel.app/api/docs](https://spring-store-be.vercel.app/api/docs)
+Render: [https://spring-store-be.onrender.com/api/docs](https://spring-store-be.onrender.com/api/docs)
